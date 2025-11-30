@@ -49,13 +49,19 @@ export default function ChatInterface() {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
 
-    const femaleVoice = voices.find(voice => 
+    // Try to find a Siri-like voice (e.g., Samantha on Apple devices)
+    const siriVoice = voices.find(voice => 
+      voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
+    );
+
+    // Fallback to other high-quality female voices if Siri voice is not found
+    const femaleVoice = siriVoice || voices.find(voice => 
       voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
     ) || voices.find(voice => voice.lang.startsWith('en'));
 
     if (femaleVoice) {
       utterance.voice = femaleVoice;
-      utterance.pitch = 1; 
+      utterance.pitch = 1;
       utterance.rate = 1;
     }
 
