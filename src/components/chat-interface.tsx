@@ -47,7 +47,10 @@ export default function ChatInterface() {
   const readAloud = (text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Remove markdown for cleaner speech
+    const cleanText = text.replace(/(\*|_|`|#)/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
 
     // Try to find a Siri-like voice (e.g., Samantha on Apple devices)
     const siriVoice = voices.find(voice => 
