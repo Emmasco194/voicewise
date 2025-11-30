@@ -99,9 +99,6 @@ export default function ChatInterface() {
       <div className="p-4 bg-background border-t">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="w-full flex items-center gap-2 relative">
-            <Button variant="outline" size="icon" onClick={handleNewChat} className="flex-shrink-0 self-end mb-1" aria-label="New Chat">
-                <PlusSquare />
-            </Button>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -115,6 +112,12 @@ export default function ChatInterface() {
               </Button>
             </div>
           </form>
+          <div className="flex justify-center mt-2">
+            <Button variant="ghost" onClick={handleNewChat} className="text-xs text-muted-foreground">
+              <PlusSquare className="w-4 h-4 mr-2"/>
+              New Chat
+            </Button>
+          </div>
         </div>
       </div>
     </div>
