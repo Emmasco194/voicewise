@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useTransition } from 'react';
-import { Send, Mic, Sparkles, LoaderCircle, PlusSquare } from 'lucide-react';
+import { Send, Sparkles, LoaderCircle, PlusSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,19 +10,10 @@ import { getAiResponse, getSummarizedResponse } from '@/app/actions';
 import { ChatMessage, type Message } from './chat-message';
 import { Avatar, AvatarFallback } from './ui/avatar';
 
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
-
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isPending, startTransition] = useTransition();
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const scrollEndRef = useRef<HTMLDivElement>(null);
 
@@ -82,47 +73,6 @@ export default function ChatInterface() {
     });
   };
 
-  const handleVoiceInput = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast({
-        variant: 'destructive',
-        title: 'Browser Not Supported',
-        description: 'Your browser does not support voice recognition.',
-      });
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current?.stop();
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = (event: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Voice Recognition Error',
-        description: event.error,
-      });
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput('');
-      processUserInput(transcript);
-    };
-
-    recognition.start();
-  };
-  
   return (
     <div className="w-full h-screen flex flex-col bg-background">
       <header className="flex items-center justify-between p-4 border-b">
@@ -164,22 +114,11 @@ export default function ChatInterface() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isListening ? 'Listening...' : 'Message VoiceWise AI...'}
-              disabled={isPending || isListening}
+              placeholder={'Message VoiceWise AI...'}
+              disabled={isPending}
               className="flex-grow rounded-full py-6 px-6 border-border shadow-sm focus:ring-primary focus:border-primary"
             />
             <div className="absolute right-4 flex items-center gap-2">
-              <Button
-                type="button"
-                size="icon"
-                onClick={handleVoiceInput}
-                disabled={isPending}
-                variant={isListening ? 'destructive' : 'ghost'}
-                className="rounded-full text-muted-foreground hover:text-foreground"
-                aria-label={isListening ? 'Stop listening' : 'Start listening'}
-              >
-                <Mic />
-              </Button>
               <Button type="submit" size="icon" disabled={isPending || !input.trim()} aria-label="Send message" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 {isPending ? <LoaderCircle className="animate-spin" /> : <Send />}
               </Button>
