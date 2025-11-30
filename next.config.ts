@@ -30,12 +30,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    // This is to allow cross-origin requests in development.
-    serverActions: {
-      allowedOrigins: ['*.googleusercontent.com', '*.cloudworkstations.dev'],
-    },
-  },
 };
 
 export default nextConfig;
