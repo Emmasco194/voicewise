@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'VoiceWise AI',
+  title: 'GhanaAi',
   description: 'An AI chat assistant with voice capabilities.',
 };
 

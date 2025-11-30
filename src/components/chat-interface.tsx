@@ -72,7 +72,7 @@ export default function ChatInterface() {
     <div className="w-full h-screen flex flex-col bg-background">
       <header className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold">VoiceWise AI</h1>
+          <h1 className="text-xl font-semibold">GhanaAi</h1>
         </div>
       </header>
       <div className="flex-grow overflow-hidden">
@@ -105,7 +105,7 @@ export default function ChatInterface() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={'Message VoiceWise AI...'}
+              placeholder={'Message GhanaAi...'}
               disabled={isPending}
               className="flex-grow rounded-full py-6 px-6 border-border shadow-sm focus:ring-primary focus:border-primary"
             />
