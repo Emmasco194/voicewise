@@ -25,35 +25,70 @@ export default function ChatInterface() {
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const scrollEndRef = useRef<HTMLDivElement>(null);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+  
+  useEffect(() => {
+    const handleVoicesChanged = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
+    
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+        handleVoicesChanged();
+    }
+
+    return () => {
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+        }
+    };
+  }, []);
 
   const readAloud = (text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
     
-    const cleanText = text.replace(/(\*|_|`|#)/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const speak = () => {
+        window.speechSynthesis.cancel();
+        
+        const cleanText = text.replace(/(\*|_|`|#)/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+        const allVoices = window.speechSynthesis.getVoices();
 
-    const voices = window.speechSynthesis.getVoices();
-
-    const siriVoice = voices.find(voice => 
-      voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
-    );
-
-    const femaleVoice = siriVoice || voices.find(voice => 
-      voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
-    ) || voices.find(voice => voice.lang.startsWith('en'));
-
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
-      utterance.pitch = 1;
-      utterance.rate = 1;
+        const siriVoice = allVoices.find(voice => 
+          voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
+        );
+    
+        const femaleVoice = siriVoice || allVoices.find(voice => 
+          voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
+        ) || allVoices.find(voice => voice.lang.startsWith('en'));
+    
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+          utterance.pitch = 1;
+          utterance.rate = 1;
+        }
+    
+        window.speechSynthesis.speak(utterance);
     }
 
-    window.speechSynthesis.speak(utterance);
+    if (voices.length > 0) {
+        speak();
+    } else {
+        const voiceCheckInterval = setInterval(() => {
+            const allVoices = window.speechSynthesis.getVoices();
+            if (allVoices.length > 0) {
+                setVoices(allVoices);
+                clearInterval(voiceCheckInterval);
+                speak();
+            }
+        }, 100);
+    }
   };
   
   const processUserInput = (text: string) => {
@@ -87,7 +122,9 @@ export default function ChatInterface() {
 
   const handleNewChat = () => {
     setMessages([]);
-    window.speechSynthesis.cancel();
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
