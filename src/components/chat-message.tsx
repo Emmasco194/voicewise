@@ -66,10 +66,10 @@ const AssistantMessage = memo(({ message, onSummarize, onReadAloud, isLongRespon
           <Bot size={20} className="text-primary" />
         </AvatarFallback>
       </Avatar>
-      <div className="max-w-[80%] rounded-xl px-4 py-3 shadow-sm bg-card text-card-foreground">
+      <div className="max-w-[80%]">
         <div className="prose prose-sm dark:prose-invert" dangerouslySetInnerHTML={{ __html: htmlContent }} />
         {message.content && (
-          <div className="flex items-center justify-end gap-1 mt-2 -mb-1 -mr-2">
+          <div className="flex items-center justify-start gap-1 mt-2">
             {isLongResponse && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-accent-foreground" onClick={() => onSummarize(message.content)}>
                 <Sparkles size={16} />
@@ -102,19 +102,15 @@ export function ChatMessage({ message, onSummarize, onReadAloud }: ChatMessagePr
   }
 
   return (
-    <div className={cn('flex items-start gap-4', isAssistant ? '' : 'justify-end')}>
-      <div className={cn(
-          "max-w-[80%] rounded-xl px-4 py-3 shadow-sm",
-          "bg-primary text-primary-foreground"
-        )}
-      >
-        <p className="whitespace-pre-wrap text-sm">{message.content}</p>
-      </div>
-      <Avatar className="w-8 h-8 border">
-        <AvatarFallback>
-          <User size={20} />
-        </AvatarFallback>
-      </Avatar>
+    <div className={cn('flex items-start gap-4', isAssistant ? '' : 'justify-start')}>
+        <Avatar className="w-8 h-8 border">
+            <AvatarFallback>
+            <User size={20} />
+            </AvatarFallback>
+        </Avatar>
+        <div className="max-w-[80%]">
+            <p className="whitespace-pre-wrap text-sm pt-1.5">{message.content}</p>
+        </div>
     </div>
   );
 }

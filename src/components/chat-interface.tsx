@@ -126,28 +126,20 @@ export default function ChatInterface() {
   };
 
   return (
-    <Card className="w-full max-w-3xl h-[95vh] shadow-2xl flex flex-col bg-card/80 backdrop-blur-sm">
-      <CardHeader className="flex flex-row items-center justify-between border-b">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback className="bg-primary/20">
-              <Sparkles className="text-primary" />
-            </AvatarFallback>
-          </Avatar>
-          <CardTitle className="font-headline text-xl">VoiceWise AI</CardTitle>
-        </div>
-        <Button variant="ghost" size="icon" onClick={() => setIsTtsEnabled(prev => !prev)} className="text-muted-foreground hover:text-foreground">
-            {isTtsEnabled ? <Volume2 /> : <VolumeX />}
-            <span className="sr-only">{isTtsEnabled ? 'Disable' : 'Enable'} Text-to-Speech</span>
-        </Button>
-      </CardHeader>
-      <CardContent className="flex-grow overflow-hidden p-0">
+    <div className="w-full max-w-3xl h-[85vh] flex flex-col">
+      <div className="flex-grow overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="space-y-2 p-4">
+          <div className="space-y-4 p-4">
             {messages.length === 0 && (
               <div className="text-center text-muted-foreground pt-10 px-4">
-                <p className="text-lg">Welcome to VoiceWise AI</p>
-                <p>Ask me anything, or use the microphone to talk.</p>
+                <div className="flex justify-center items-center mb-4">
+                  <Avatar>
+                    <AvatarFallback className="bg-primary/20">
+                      <Sparkles className="text-primary" />
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <p className="text-2xl font-semibold">What's on your mind today?</p>
               </div>
             )}
             {messages.map((msg) => (
@@ -156,31 +148,34 @@ export default function ChatInterface() {
           </div>
           <div ref={scrollEndRef} />
         </ScrollArea>
-      </CardContent>
-      <CardFooter className="border-t pt-6">
-        <form onSubmit={handleSubmit} className="w-full flex items-center gap-2">
+      </div>
+      <div className="pt-4">
+        <form onSubmit={handleSubmit} className="w-full flex items-center gap-2 relative">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={isListening ? 'Listening...' : 'Type your question...'}
+            placeholder={isListening ? 'Listening...' : 'Ask anything...'}
             disabled={isPending || isListening}
-            className="flex-grow"
+            className="flex-grow rounded-full py-6 px-6 border-2 border-border/50 shadow-sm"
           />
-          <Button
-            type="button"
-            size="icon"
-            onClick={handleVoiceInput}
-            disabled={isPending}
-            variant={isListening ? 'destructive' : 'outline'}
-            aria-label={isListening ? 'Stop listening' : 'Start listening'}
-          >
-            <Mic />
-          </Button>
-          <Button type="submit" size="icon" disabled={isPending || !input.trim()} aria-label="Send message">
-            {isPending ? <LoaderCircle className="animate-spin" /> : <Send />}
-          </Button>
+          <div className="absolute right-4 flex items-center gap-2">
+            <Button
+              type="button"
+              size="icon"
+              onClick={handleVoiceInput}
+              disabled={isPending}
+              variant={isListening ? 'destructive' : 'ghost'}
+              className="rounded-full"
+              aria-label={isListening ? 'Stop listening' : 'Start listening'}
+            >
+              <Mic />
+            </Button>
+            <Button type="submit" size="icon" disabled={isPending || !input.trim()} aria-label="Send message" className="rounded-full bg-primary/90 hover:bg-primary">
+              {isPending ? <LoaderCircle className="animate-spin" /> : <Send />}
+            </Button>
+          </div>
         </form>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
