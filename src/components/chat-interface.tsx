@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, useTransition, useCallback } from 'react';
-import { Send, Mic, Sparkles, LoaderCircle, PlusCircle } from 'lucide-react';
+import { useState, useRef, useEffect, useTransition } from 'react';
+import { Send, Mic, Sparkles, LoaderCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getAiResponse, getSummarizedResponse } from '@/app/actions';
 import { ChatMessage, type Message } from './chat-message';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { useSidebar } from './ui/sidebar';
 
 declare global {
   interface Window {
@@ -17,13 +16,6 @@ declare global {
     webkitSpeechRecognition: any;
   }
 }
-
-export type ChatSession = {
-  id: string;
-  title: string;
-  messages: Message[];
-  createdAt: number;
-};
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -34,37 +26,6 @@ export default function ChatInterface() {
   const { toast } = useToast();
   const scrollEndRef = useRef<HTMLDivElement>(null);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const { isMobile, toggleSidebar } = useSidebar();
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleChatSelected = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail.id) {
-        setMessages(detail.messages);
-        setActiveChatId(detail.id);
-        if (isMobile) {
-          toggleSidebar();
-        }
-      }
-    };
-
-    const handleNewChat = () => {
-      setMessages([]);
-      setActiveChatId(null);
-      if (isMobile) {
-        toggleSidebar();
-      }
-    };
-    
-    window.addEventListener('chat-selected', handleChatSelected);
-    window.addEventListener('new-chat-started', handleNewChat);
-    
-    return () => {
-      window.removeEventListener('chat-selected', handleChatSelected);
-      window.removeEventListener('new-chat-started', handleNewChat);
-    };
-  }, [isMobile, toggleSidebar]);
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -107,36 +68,6 @@ export default function ChatInterface() {
     window.speechSynthesis.speak(utterance);
   };
   
-  const saveChatSession = useCallback((chatId: string, updatedMessages: Message[]) => {
-    const chatHistory: ChatSession[] = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-    const chatIndex = chatHistory.findIndex(chat => chat.id === chatId);
-    if (chatIndex > -1) {
-      chatHistory[chatIndex].messages = updatedMessages;
-    }
-    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-    window.dispatchEvent(new CustomEvent('chat-updated', { detail: { id: chatId, messages: updatedMessages } }));
-  }, []);
-
-  const createNewChatSession = useCallback((newMessages: Message[]) => {
-    const newChatId = `chat_${Date.now()}`;
-    const newChatSession: ChatSession = {
-      id: newChatId,
-      title: newMessages[0].content.substring(0, 40),
-      messages: newMessages,
-      createdAt: Date.now(),
-    };
-
-    const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-    chatHistory.unshift(newChatSession);
-    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-    
-    setActiveChatId(newChatId);
-    window.dispatchEvent(new CustomEvent('history-updated'));
-
-    return newChatId;
-  }, []);
-
-
   const processUserInput = (text: string) => {
     if (!text.trim() || isPending) return;
 
@@ -145,13 +76,6 @@ export default function ChatInterface() {
     
     const currentMessages = [...messages, newUserMessage, loadingMessage];
     setMessages(currentMessages);
-
-    let currentChatId = activeChatId;
-    if (!currentChatId) {
-      currentChatId = createNewChatSession(currentMessages);
-    } else {
-      saveChatSession(currentChatId, currentMessages);
-    }
     
     startTransition(async () => {
       const result = await getAiResponse(text);
@@ -170,9 +94,6 @@ export default function ChatInterface() {
         readAloud(result.response);
       }
       setMessages(finalMessages);
-      if (currentChatId) {
-        saveChatSession(currentChatId, finalMessages);
-      }
     });
   }
 
@@ -192,9 +113,6 @@ export default function ChatInterface() {
         const summaryMessage: Message = { id: Date.now().toString(), role: 'assistant', content: `✨ **Summary**:\n\n${result.summary}` };
         const updatedMessages = [...messages, summaryMessage];
         setMessages(updatedMessages);
-        if(activeChatId) {
-          saveChatSession(activeChatId, updatedMessages);
-        }
         readAloud(`Here is the summary: ${result.summary}`);
       }
     });
@@ -245,11 +163,6 @@ export default function ChatInterface() {
     <div className="w-full h-screen flex flex-col bg-white">
       <header className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
-          {isMobile && (
-              <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-                  <PlusCircle className="h-5 w-5" />
-              </Button>
-          )}
           <h1 className="text-xl font-semibold">VoiceWise AI</h1>
         </div>
       </header>
