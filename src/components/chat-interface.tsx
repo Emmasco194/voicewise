@@ -18,8 +18,10 @@ export default function ChatInterface() {
   const scrollEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (!isPending) {
+        scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isPending]);
   
   const processUserInput = (text: string) => {
     if (!text.trim() || isPending) return;
