@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useTransition } from 'react';
-import { Send, Mic, Sparkles, LoaderCircle } from 'lucide-react';
+import { Send, Mic, Sparkles, LoaderCircle, PlusSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -97,6 +97,11 @@ export default function ChatInterface() {
     });
   }
 
+  const handleNewChat = () => {
+    setMessages([]);
+    window.speechSynthesis.cancel();
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     processUserInput(input);
@@ -165,6 +170,10 @@ export default function ChatInterface() {
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold">VoiceWise AI</h1>
         </div>
+        <Button variant="outline" size="sm" onClick={handleNewChat}>
+            <PlusSquare className="mr-2 h-4 w-4" />
+            New Chat
+        </Button>
       </header>
       <div className="flex-grow overflow-hidden">
         <ScrollArea className="h-full">
