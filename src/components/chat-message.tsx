@@ -7,7 +7,7 @@ import { memo } from 'react';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/github.css';
+import 'highlight.js/styles/github-dark.css';
 
 export type Message = {
   id: string;
@@ -47,11 +47,11 @@ const AssistantMessage = memo(({ message, onSummarize, onReadAloud, isLongRespon
     return (
       <div className="flex items-start gap-4 p-4">
         <Avatar className="w-8 h-8 border">
-          <AvatarFallback className="bg-blue-500 text-white">
+          <AvatarFallback className="bg-primary text-primary-foreground">
             <Bot size={20} />
           </AvatarFallback>
         </Avatar>
-        <div className="flex items-center gap-2 text-gray-500 mt-1">
+        <div className="flex items-center gap-2 text-muted-foreground mt-1">
           <LoaderCircle className="animate-spin w-5 h-5" />
           <span className="text-sm">Thinking...</span>
         </div>
@@ -61,26 +61,26 @@ const AssistantMessage = memo(({ message, onSummarize, onReadAloud, isLongRespon
 
   return (
     <div className='flex items-start gap-4'>
-      <Avatar className="w-8 h-8 border bg-white">
-        <AvatarFallback className="bg-blue-100">
-          <Bot size={20} className="text-blue-500" />
+      <Avatar className="w-8 h-8 border bg-background">
+        <AvatarFallback className="bg-primary/10">
+          <Bot size={20} className="text-primary" />
         </AvatarFallback>
       </Avatar>
       <div className="flex-1">
-        <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
         {message.content && (
           <div className="flex items-center justify-start gap-1 mt-2">
             {isLongResponse && (
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 hover:text-blue-500" onClick={() => onSummarize(message.content)}>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => onSummarize(message.content)}>
                 <Sparkles size={16} />
                 <span className="sr-only">Summarize</span>
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 hover:text-blue-500" onClick={() => onReadAloud(message.content)}>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => onReadAloud(message.content)}>
               <Volume2 size={16} />
               <span className="sr-only">Read aloud</span>
             </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-500 hover:text-blue-500" onClick={handleCopy}>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={handleCopy}>
               <Clipboard size={16} />
               <span className="sr-only">Copy</span>
             </Button>

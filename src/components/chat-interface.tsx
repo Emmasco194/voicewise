@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getAiResponse, getSummarizedResponse } from '@/app/actions';
 import { ChatMessage, type Message } from './chat-message';
 import { Avatar, AvatarFallback } from './ui/avatar';
+import { ThemeToggle } from './theme-toggle';
 
 declare global {
   interface Window {
@@ -165,29 +166,32 @@ export default function ChatInterface() {
   };
   
   return (
-    <div className="w-full h-screen flex flex-col bg-white">
+    <div className="w-full h-screen flex flex-col bg-background">
       <header className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold">VoiceWise AI</h1>
         </div>
-        <Button variant="outline" size="sm" onClick={handleNewChat}>
-            <PlusSquare className="mr-2 h-4 w-4" />
-            New Chat
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleNewChat}>
+              <PlusSquare className="mr-2 h-4 w-4" />
+              New Chat
+          </Button>
+          <ThemeToggle />
+        </div>
       </header>
       <div className="flex-grow overflow-hidden">
         <ScrollArea className="h-full">
           <div className="space-y-4 p-4 max-w-3xl mx-auto w-full">
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 pt-20 px-4">
+              <div className="text-center text-gray-500 dark:text-gray-400 pt-20 px-4">
                 <div className="flex justify-center items-center mb-4">
                   <Avatar>
-                    <AvatarFallback className="bg-blue-100">
-                      <Sparkles className="text-blue-500" />
+                    <AvatarFallback className="bg-primary/10">
+                      <Sparkles className="text-primary" />
                     </AvatarFallback>
                   </Avatar>
                 </div>
-                <p className="text-2xl font-semibold text-gray-700">How can I help you today?</p>
+                <p className="text-2xl font-semibold text-foreground/80">How can I help you today?</p>
               </div>
             )}
             {messages.map((msg) => (
@@ -197,7 +201,7 @@ export default function ChatInterface() {
           <div ref={scrollEndRef} />
         </ScrollArea>
       </div>
-      <div className="p-4 bg-white border-t">
+      <div className="p-4 bg-background border-t">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="w-full flex items-center gap-2 relative">
             <Input
@@ -205,7 +209,7 @@ export default function ChatInterface() {
               onChange={(e) => setInput(e.target.value)}
               placeholder={isListening ? 'Listening...' : 'Message VoiceWise AI...'}
               disabled={isPending || isListening}
-              className="flex-grow rounded-full py-6 px-6 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="flex-grow rounded-full py-6 px-6 border-border shadow-sm focus:ring-primary focus:border-primary"
             />
             <div className="absolute right-4 flex items-center gap-2">
               <Button
@@ -214,12 +218,12 @@ export default function ChatInterface() {
                 onClick={handleVoiceInput}
                 disabled={isPending}
                 variant={isListening ? 'destructive' : 'ghost'}
-                className="rounded-full text-gray-500 hover:text-gray-700"
+                className="rounded-full text-muted-foreground hover:text-foreground"
                 aria-label={isListening ? 'Stop listening' : 'Start listening'}
               >
                 <Mic />
               </Button>
-              <Button type="submit" size="icon" disabled={isPending || !input.trim()} aria-label="Send message" className="rounded-full bg-blue-500 hover:bg-blue-600 text-white">
+              <Button type="submit" size="icon" disabled={isPending || !input.trim()} aria-label="Send message" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 {isPending ? <LoaderCircle className="animate-spin" /> : <Send />}
               </Button>
             </div>
