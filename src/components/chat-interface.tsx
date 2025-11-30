@@ -25,15 +25,40 @@ export default function ChatInterface() {
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const scrollEndRef = useRef<HTMLDivElement>(null);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      const getVoices = () => {
+        const availableVoices = window.speechSynthesis.getVoices();
+        if (availableVoices.length > 0) {
+          setVoices(availableVoices);
+        }
+      };
+      getVoices();
+      window.speechSynthesis.onvoiceschanged = getVoices;
+    }
+  }, []);
+
   const readAloud = (text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
+
+    const femaleVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+      utterance.pitch = 1; 
+      utterance.rate = 1;
+    }
+
     window.speechSynthesis.speak(utterance);
   };
 
