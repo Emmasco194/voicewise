@@ -34,12 +34,14 @@ export default function ChatInterface() {
   useEffect(() => {
     const handleVoicesChanged = () => {
       const availableVoices = window.speechSynthesis.getVoices();
-      setVoices(availableVoices);
+      if (availableVoices.length > 0) {
+        setVoices(availableVoices);
+      }
     };
     
     if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
-        handleVoicesChanged();
+        handleVoicesChanged(); // Initial call
     }
 
     return () => {
@@ -51,43 +53,43 @@ export default function ChatInterface() {
 
   const readAloud = (text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    
-    const speak = () => {
-        window.speechSynthesis.cancel();
-        
-        const cleanText = text.replace(/(\*|_|`|#)/g, '');
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-        const allVoices = window.speechSynthesis.getVoices();
 
-        const siriVoice = allVoices.find(voice => 
-          voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
-        );
-    
-        const femaleVoice = siriVoice || allVoices.find(voice => 
-          voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
-        ) || allVoices.find(voice => voice.lang.startsWith('en'));
-    
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-          utterance.pitch = 1;
-          utterance.rate = 1;
-        }
-    
-        window.speechSynthesis.speak(utterance);
-    }
+    const speak = (allVoices: SpeechSynthesisVoice[]) => {
+      window.speechSynthesis.cancel();
 
-    if (voices.length > 0) {
-        speak();
+      const cleanText = text.replace(/(\*|_|`|#)/g, '');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      
+      const siriVoice = allVoices.find(voice => 
+        voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
+      );
+  
+      const femaleVoice = siriVoice || allVoices.find(voice => 
+        voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
+      ) || allVoices.find(voice => voice.lang.startsWith('en'));
+  
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+        utterance.pitch = 1;
+        utterance.rate = 1;
+      }
+  
+      window.speechSynthesis.speak(utterance);
+    };
+
+    const currentVoices = window.speechSynthesis.getVoices();
+    if (currentVoices.length > 0) {
+      setVoices(currentVoices);
+      speak(currentVoices);
     } else {
-        const voiceCheckInterval = setInterval(() => {
-            const allVoices = window.speechSynthesis.getVoices();
-            if (allVoices.length > 0) {
-                setVoices(allVoices);
-                clearInterval(voiceCheckInterval);
-                speak();
-            }
-        }, 100);
+      const voiceCheckInterval = setInterval(() => {
+        const allVoices = window.speechSynthesis.getVoices();
+        if (allVoices.length > 0) {
+          setVoices(allVoices);
+          clearInterval(voiceCheckInterval);
+          speak(allVoices);
+        }
+      }, 100);
     }
   };
   
