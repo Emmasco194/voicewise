@@ -15,13 +15,6 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const scrollEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isPending) {
-        scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, isPending]);
   
   const processUserInput = (text: string) => {
     if (!text.trim() || isPending) return;
@@ -81,12 +74,6 @@ export default function ChatInterface() {
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold">VoiceWise AI</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleNewChat}>
-              <PlusSquare className="mr-2 h-4 w-4" />
-              New Chat
-          </Button>
-        </div>
       </header>
       <div className="flex-grow overflow-hidden">
         <ScrollArea className="h-full">
@@ -107,12 +94,14 @@ export default function ChatInterface() {
               <ChatMessage key={msg.id} message={msg} onSummarize={handleSummarize} />
             ))}
           </div>
-          <div ref={scrollEndRef} />
         </ScrollArea>
       </div>
       <div className="p-4 bg-background border-t">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="w-full flex items-center gap-2 relative">
+            <Button variant="outline" size="icon" onClick={handleNewChat} className="flex-shrink-0" aria-label="New Chat">
+                <PlusSquare />
+            </Button>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
