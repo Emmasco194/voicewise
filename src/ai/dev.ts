@@ -1,4 +1,6 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/summarize-long-responses.ts';
+import './genkit.js';
+
+import './flows/summarize-long-responses.js';
