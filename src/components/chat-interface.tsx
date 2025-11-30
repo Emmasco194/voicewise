@@ -25,24 +25,10 @@ export default function ChatInterface() {
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const scrollEndRef = useRef<HTMLDivElement>(null);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      const getVoices = () => {
-        const availableVoices = window.speechSynthesis.getVoices();
-        if (availableVoices.length > 0) {
-          setVoices(availableVoices);
-        }
-      };
-      getVoices();
-      window.speechSynthesis.onvoiceschanged = getVoices;
-    }
-  }, []);
 
   const readAloud = (text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -50,6 +36,8 @@ export default function ChatInterface() {
     
     const cleanText = text.replace(/(\*|_|`|#)/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
+
+    const voices = window.speechSynthesis.getVoices();
 
     const siriVoice = voices.find(voice => 
       voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
