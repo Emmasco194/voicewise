@@ -25,73 +25,10 @@ export default function ChatInterface() {
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const scrollEndRef = useRef<HTMLDivElement>(null);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-  
-  useEffect(() => {
-    const handleVoicesChanged = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      if (availableVoices.length > 0) {
-        setVoices(availableVoices);
-      }
-    };
-    
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
-        handleVoicesChanged(); // Initial call
-    }
-
-    return () => {
-        if (typeof window !== 'undefined' && window.speechSynthesis) {
-            window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
-        }
-    };
-  }, []);
-
-  const readAloud = (text: string) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-
-    const speak = (allVoices: SpeechSynthesisVoice[]) => {
-      window.speechSynthesis.cancel();
-
-      const cleanText = text.replace(/(\*|_|`|#)/g, '');
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      
-      const siriVoice = allVoices.find(voice => 
-        voice.name.toLowerCase() === 'samantha' && voice.lang.startsWith('en')
-      );
-  
-      const femaleVoice = siriVoice || allVoices.find(voice => 
-        voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
-      ) || allVoices.find(voice => voice.lang.startsWith('en'));
-  
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
-        utterance.pitch = 1;
-        utterance.rate = 1;
-      }
-  
-      window.speechSynthesis.speak(utterance);
-    };
-
-    const currentVoices = window.speechSynthesis.getVoices();
-    if (currentVoices.length > 0) {
-      setVoices(currentVoices);
-      speak(currentVoices);
-    } else {
-      const voiceCheckInterval = setInterval(() => {
-        const allVoices = window.speechSynthesis.getVoices();
-        if (allVoices.length > 0) {
-          setVoices(allVoices);
-          clearInterval(voiceCheckInterval);
-          speak(allVoices);
-        }
-      }, 100);
-    }
-  };
   
   const processUserInput = (text: string) => {
     if (!text.trim() || isPending) return;
@@ -116,7 +53,6 @@ export default function ChatInterface() {
       } else {
         const newAssistantMessage: Message = { id: Date.now().toString(), role: 'assistant', content: result.response };
         finalMessages = currentMessages.map(msg => msg.id === loadingMessage.id ? newAssistantMessage : msg);
-        readAloud(result.response);
       }
       setMessages(finalMessages);
     });
@@ -124,9 +60,6 @@ export default function ChatInterface() {
 
   const handleNewChat = () => {
     setMessages([]);
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -145,7 +78,6 @@ export default function ChatInterface() {
         const summaryMessage: Message = { id: Date.now().toString(), role: 'assistant', content: `✨ **Summary**:\n\n${result.summary}` };
         const updatedMessages = [...messages, summaryMessage];
         setMessages(updatedMessages);
-        readAloud(`Here is the summary: ${result.summary}`);
       }
     });
   };
@@ -220,7 +152,7 @@ export default function ChatInterface() {
               </div>
             )}
             {messages.map((msg) => (
-              <ChatMessage key={msg.id} message={msg} onSummarize={handleSummarize} onReadAloud={readAloud} />
+              <ChatMessage key={msg.id} message={msg} onSummarize={handleSummarize} />
             ))}
           </div>
           <div ref={scrollEndRef} />

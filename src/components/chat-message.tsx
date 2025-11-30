@@ -1,4 +1,4 @@
-import { Bot, User, LoaderCircle, Volume2, Sparkles, Clipboard } from 'lucide-react';
+import { Bot, User, LoaderCircle, Sparkles, Clipboard } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,6 @@ export type Message = {
 type ChatMessageProps = {
   message: Message;
   onSummarize: (text: string) => void;
-  onReadAloud: (text: string) => void;
 };
 
 const marked = new Marked(
@@ -31,7 +30,7 @@ const marked = new Marked(
   })
 );
 
-const AssistantMessage = memo(({ message, onSummarize, onReadAloud, isLongResponse }: ChatMessageProps & { isLongResponse: boolean }) => {
+const AssistantMessage = memo(({ message, onSummarize, isLongResponse }: Omit<ChatMessageProps, 'onReadAloud'> & { isLongResponse: boolean }) => {
   const { toast } = useToast();
   const htmlContent = marked.parse(message.content) as string;
 
@@ -76,10 +75,6 @@ const AssistantMessage = memo(({ message, onSummarize, onReadAloud, isLongRespon
                 <span className="sr-only">Summarize</span>
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => onReadAloud(message.content)}>
-              <Volume2 size={16} />
-              <span className="sr-only">Read aloud</span>
-            </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={handleCopy}>
               <Clipboard size={16} />
               <span className="sr-only">Copy</span>
@@ -93,12 +88,12 @@ const AssistantMessage = memo(({ message, onSummarize, onReadAloud, isLongRespon
 
 AssistantMessage.displayName = 'AssistantMessage';
 
-export function ChatMessage({ message, onSummarize, onReadAloud }: ChatMessageProps) {
+export function ChatMessage({ message, onSummarize }: ChatMessageProps) {
   const isAssistant = message.role === 'assistant';
   const isLongResponse = isAssistant && message.content.length > 250;
 
   if (isAssistant) {
-    return <AssistantMessage message={message} onSummarize={onSummarize} onReadAloud={onReadAloud} isLongResponse={isLongResponse} />;
+    return <AssistantMessage message={message} onSummarize={onSummarize} isLongResponse={isLongResponse} />;
   }
 
   return (
