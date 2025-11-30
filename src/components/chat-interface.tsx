@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { Send, Sparkles, LoaderCircle, PlusSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -99,7 +99,7 @@ export default function ChatInterface() {
       <div className="p-4 bg-background border-t">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="w-full flex items-center gap-2 relative">
-            <Button variant="outline" size="icon" onClick={handleNewChat} className="flex-shrink-0" aria-label="New Chat">
+            <Button variant="outline" size="icon" onClick={handleNewChat} className="flex-shrink-0 self-end mb-1" aria-label="New Chat">
                 <PlusSquare />
             </Button>
             <Input
