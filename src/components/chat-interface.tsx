@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getAiResponse, getSummarizedResponse } from '@/app/actions';
 import { ChatMessage, type Message } from './chat-message';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { ThemeToggle } from './theme-toggle';
 
 declare global {
   interface Window {
@@ -176,14 +175,13 @@ export default function ChatInterface() {
               <PlusSquare className="mr-2 h-4 w-4" />
               New Chat
           </Button>
-          <ThemeToggle />
         </div>
       </header>
       <div className="flex-grow overflow-hidden">
         <ScrollArea className="h-full">
           <div className="space-y-4 p-4 max-w-3xl mx-auto w-full">
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 dark:text-gray-400 pt-20 px-4">
+              <div className="text-center text-gray-500 pt-20 px-4">
                 <div className="flex justify-center items-center mb-4">
                   <Avatar>
                     <AvatarFallback className="bg-primary/10">
